@@ -16,7 +16,7 @@ database_manager = DatabaseManager(
 
 if __name__ == '__main__':
     # Create tables
-    database_manager.create_tables(models=[models.Author])
+    database_manager.create_tables(models=[models.Author, models.Edition])
     # Inputs
     search_title = input('Please enter a search title: ') or DEFAULT_TITLE
     search_type = input('What are you searching for?(books, groups, quotes, people or listopia) ') or DEFAULT_TAB
@@ -36,6 +36,8 @@ if __name__ == '__main__':
             target_scraper_handler.send_request()
             author, _ = target_scraper_handler.get_author_info()
             print(author)
+            # edition, _ = target_scraper_handler.get_edition_info()
+            # print(edition)
             print('-' * 50)
 
     if database_manager.db:

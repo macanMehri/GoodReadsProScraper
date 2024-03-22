@@ -55,3 +55,24 @@ class ScraperHandler:
             books=number_of_books,
             followers=number_of_followers
         )
+
+    def get_edition_info(self):
+        """Scrape editions info and creates and returns an edition object"""
+        # Get all editions information
+        edition = self.soup.find('dl', attrs={'class': 'DescList'}).find_all('dd')
+
+        print(
+            f'edition_format: {edition[0].text} | edition_published_date: {edition[1].text} | '
+            f'isbn: {edition[2].text} | language: {edition[3].text}'
+        )
+        """
+        return models.Edition.get_or_create(
+            edition_format=edition[0].text,
+            edition_published_date=edition[1].text,
+            isbn=edition[2].text,
+            language=edition[3].text,
+        )
+"""
+
+    def get_genres(self):
+        """Scrape genres of each book"""
