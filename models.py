@@ -17,8 +17,6 @@ class Genre(BaseModel):
     title = peewee.CharField(max_length=255, null=False, verbose_name='Title')
 
     class Meta:
-        verbose_name = 'Genre'
-        verbose_name_plural = 'Genres'
         database = main.database_manager.db
 
     def __str__(self):
@@ -46,8 +44,6 @@ class Edition(BaseModel):
     language = peewee.CharField(max_length=255, null=False, verbose_name='Language')
 
     class Meta:
-        verbose_name = 'Edition'
-        verbose_name_plural = 'Editions'
         database = main.database_manager.db
 
     def __str__(self) -> str:
@@ -63,8 +59,6 @@ class Book(BaseModel):
     first_published_date = peewee.CharField(max_length=255, null=False, verbose_name='First Published Date')
 
     class Meta:
-        verbose_name = 'Book'
-        verbose_name_plural = 'Books'
         database = main.database_manager.db
 
     def __str__(self) -> str:
