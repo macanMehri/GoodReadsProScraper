@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import models
 
 
 class ScraperHandler:
@@ -49,5 +50,8 @@ class ScraperHandler:
         number_of_followers = self.soup.find('div', attrs={'class': 'PageSection'}
                                              ).find_next('span', attrs={'class': 'u-dot-before'}).text
 
-        print(f'name: {name}, books: {number_of_books}, followers: {number_of_followers}')
-
+        return models.Author.get_or_create(
+            name=name,
+            books=number_of_books,
+            followers=number_of_followers
+        )
