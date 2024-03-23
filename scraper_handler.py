@@ -37,18 +37,26 @@ class ScraperHandler:
             response = ScraperHandler.send_request(url=url)
             soup = BeautifulSoup(response.text, 'html.parser')
             for url in ScraperHandler.get_target_urls(soup=soup, keyword_search_instance=keyword_search_instance):
+                # Calculate target url
                 target_url = self.base_url + url
-
+                # Send request to target url
                 target_response = ScraperHandler.send_request(url=target_url)
                 target_soup = BeautifulSoup(target_response.text, 'html.parser')
-                author, _ = ScraperHandler.get_author_info(soup=target_soup)
-                print(author)
-                book, _ = ScraperHandler.get_book_info(target_soup, target_url, author)
-                print(book)
-                genres = ScraperHandler.get_genres(soup=target_soup)
-                for genre in genres:
-                    print(genre)
-                    models.BookGenre.get_or_create(book=book, genre=genre)
+                # If we are searching for books then:
+                if keyword_search_instance.search_type == 'books':
+                    author, _ = ScraperHandler.get_author_info(soup=target_soup)
+                    print(author)
+                    book, _ = ScraperHandler.get_book_info(soup=target_soup, url=target_url, author=author)
+                    print(book)
+                    genres = ScraperHandler.get_genres(soup=target_soup)
+                    for genre in genres:
+                        print(genre)
+                        models.BookGenre.get_or_create(book=book, genre=genre)
+                # If we are searching for groups then:
+                elif keyword_search_instance.search_type == 'groups':
+                    genre, _ = ScraperHandler.get_group_genre(soup=target_soup)
+                    group, _ = ScraperHandler.get_group_info(soup=target_soup, genre=genre)
+                    print(group)
                 # Seperator
                 print('-' * 50)
 
@@ -75,25 +83,6 @@ class ScraperHandler:
         )
 
     @staticmethod
-    def get_edition_info(soup: BeautifulSoup):
-        """Scrape editions info and creates and returns an edition object"""
-        # Get all editions information
-        edition = soup.find('dl', attrs={'class': 'DescList'}).find_all('dd')
-
-        print(
-            f'edition_format: {edition[0].text} | edition_published_date: {edition[1].text} | '
-            f'isbn: {edition[2].text} | language: {edition[3].text}'
-        )
-        """
-        return models.Edition.get_or_create(
-            edition_format=edition[0].text,
-            edition_published_date=edition[1].text,
-            isbn=edition[2].text,
-            language=edition[3].text,
-        )
-"""
-
-    @staticmethod
     def get_genres(soup: BeautifulSoup):
         """Scrape genres of each book"""
         genres = list()
@@ -116,3 +105,28 @@ class ScraperHandler:
             author=author,
             rate=rating,
         )
+
+    @staticmethod
+    def get_group_genre(soup: BeautifulSoup):
+        """Get genre of a group"""
+        genre_box = soup.find(name='div', attrs={'class': 'infoBoxRowItem narrow'}).find_all('a')
+        genre = genre_box[1].text
+        return models.Genre.get_or_create(title=genre)
+
+    @staticmethod
+    def get_group_info(soup: BeautifulSoup, genre: models.Genre):
+        """Scrape all information of groups"""
+        title = soup.find('h1').text
+        group_type = soup.find_all(name='div', attrs={'class': 'infoBoxRowItem'})
+        group_type = group_type[2].text.strip()
+        members = soup.find_all(name='div', attrs={'class': 'h2Container gradientHeaderContainer'})
+        # Find members count in a string
+        members = members[3].text.strip()
+        # We need data inside the parentheses
+        start_index = members.find('(') + 1
+        members = members[start_index:-1]
+        if not members.isnumeric():
+            members = 0
+        else:
+            members = int(members)
+        return models.Group.get_or_create(title=title, members=members, genre=genre, group_type=group_type)

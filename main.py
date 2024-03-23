@@ -17,7 +17,7 @@ database_manager = DatabaseManager(
 if __name__ == '__main__':
     # Create tables
     database_manager.create_tables(models=[models.Author, models.Keyword, models.SearchByKeyword, models.Book,
-                                           models.Genre, models.BookGenre])
+                                           models.Genre, models.BookGenre, models.Group])
 
     # Inputs
     search_title = input('Please enter a search title: ') or DEFAULT_TITLE

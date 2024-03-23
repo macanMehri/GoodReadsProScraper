@@ -38,10 +38,10 @@ class Author(BaseModel):
 
 
 class Book(BaseModel):
-    url = peewee.TextField(null=False, verbose_name='Link')
     title = peewee.CharField(max_length=255, null=False, verbose_name='Title')
-    author = peewee.ForeignKeyField(model=Author, null=False)
+    author = peewee.ForeignKeyField(model=Author, on_delete='CASCADE', null=False)
     rate = peewee.FloatField(null=False, verbose_name='Rate')
+    url = peewee.TextField(null=False, verbose_name='Link')
 
     class Meta:
         database = main.database_manager.db
@@ -52,8 +52,8 @@ class Book(BaseModel):
 
 
 class BookGenre(BaseModel):
-    book = peewee.ForeignKeyField(model=Book, verbose_name='Book')
-    genre = peewee.ForeignKeyField(model=Genre, verbose_name='Genre')
+    book = peewee.ForeignKeyField(model=Book, on_delete='CASCADE', verbose_name='Book')
+    genre = peewee.ForeignKeyField(model=Genre, on_delete='CASCADE',verbose_name='Genre')
 
     class Meta:
         database = main.database_manager.db
@@ -61,6 +61,20 @@ class BookGenre(BaseModel):
     def __str__(self):
         """Override str method"""
         return f'{self.book} : {self.genre}'
+
+
+class Group(BaseModel):
+    title = peewee.CharField(max_length=255, null=False, verbose_name='Title')
+    members = peewee.IntegerField(verbose_name='Number Of Members')
+    genre = peewee.ForeignKeyField(model=Genre, on_delete='CASCADE', null=False, verbose_name='Genre')
+    group_type = peewee.TextField(null=False, verbose_name='Group Type')
+
+    class Meta:
+        database = main.database_manager.db
+
+    def __str__(self):
+        """Override str method"""
+        return f'{self.title} with {self.members} members. Category: {self.genre} - Group Type: {self.group_type}'
 
 
 class Keyword(BaseModel):
