@@ -41,7 +41,7 @@ class Book(BaseModel):
     url = peewee.TextField(null=False, verbose_name='Link')
     title = peewee.CharField(max_length=255, null=False, verbose_name='Title')
     author = peewee.ForeignKeyField(model=Author, null=False)
-    rate = peewee.CharField(max_length=255, null=False, verbose_name='Rate')
+    rate = peewee.FloatField(null=False, verbose_name='Rate')
 
     class Meta:
         database = main.database_manager.db

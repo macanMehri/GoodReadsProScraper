@@ -108,7 +108,7 @@ class ScraperHandler:
     def get_book_info(soup: BeautifulSoup, url: str, author: models.Author):
         """Scrape books information"""
         title = soup.find(name='h1', attrs={'data-testid': 'bookTitle'}).text
-        rating = soup.find(name='div', attrs={'class': 'RatingStatistics__rating'}).text
+        rating = float(soup.find(name='div', attrs={'class': 'RatingStatistics__rating'}).text)
 
         return models.Book.get_or_create(
             url=url,
