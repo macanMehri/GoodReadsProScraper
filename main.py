@@ -16,29 +16,23 @@ database_manager = DatabaseManager(
 
 if __name__ == '__main__':
     # Create tables
-    database_manager.create_tables(models=[models.Author, models.Edition])
+    database_manager.create_tables(models=[models.Author, models.Keyword, models.SearchByKeyword, models.Book,
+                                           models.Genre])
+
     # Inputs
     search_title = input('Please enter a search title: ') or DEFAULT_TITLE
+    keyword, _ = models.Keyword.get_or_create(keyword=search_title)
     search_type = input('What are you searching for?(books, groups, quotes, people or listopia) ') or DEFAULT_TAB
     tab = search_type
     page_count = int(input('How many pages you want to scrape data from? ') or DEFAULT_PAGE_COUNTS)
-    # Search each page
-    for page_number in range(1, page_count+1):
-
-        url = SEARCH_URL.format(page_number=page_number, search_title=search_title, search_type=search_type, tab=tab)
-
-        main_scraper_handler = scraper_handler.ScraperHandler(base_url=url)
-        main_scraper_handler.send_request()
-
-        for url in main_scraper_handler.get_target_urls():
-            target_url = BASE_URL + url
-            target_scraper_handler = scraper_handler.ScraperHandler(base_url=target_url)
-            target_scraper_handler.send_request()
-            author, _ = target_scraper_handler.get_author_info()
-            print(author)
-            # edition, _ = target_scraper_handler.get_edition_info()
-            # print(edition)
-            print('-' * 50)
+    search_keyword_item, _ = models.SearchByKeyword.get_or_create(
+        keyword=keyword,
+        search_type=search_type,
+        search_tab=tab,
+        page_count=page_count,
+    )
+    main_scraper_handler = scraper_handler.ScraperHandler(base_url=BASE_URL, search_url=SEARCH_URL)
+    main_scraper_handler.search(keyword_search_instance=search_keyword_item)
 
     if database_manager.db:
         database_manager.close_connection()
