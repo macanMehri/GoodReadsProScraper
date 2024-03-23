@@ -64,3 +64,28 @@ class Book(BaseModel):
     def __str__(self) -> str:
         """Override str method"""
         return f'{self.title}'
+
+
+class Keyword(BaseModel):
+    keyword = peewee.CharField(max_length=255, null=False, verbose_name='Keyword')
+
+    class Meta:
+        database = main.database_manager.db
+
+    def __str__(self):
+        """Override str method"""
+        return self.keyword
+
+
+class SearchByKeyword(BaseModel):
+    keyword = peewee.ForeignKeyField(model=Keyword, on_delete='CASCADE', verbose_name='Keyword')
+    search_type = peewee.CharField(max_length=255, null=False, verbose_name='Search Type')
+    search_tab = peewee.CharField(max_length=255, default=search_type, verbose_name='Search Tab')
+    page_count = peewee.IntegerField(null=False, verbose_name='Page Count')
+
+    class Meta:
+        database = main.database_manager.db
+
+    def __str__(self):
+        """Override str method"""
+        return f'{self.keyword} {self.search_type} {self.page_count} pages'
