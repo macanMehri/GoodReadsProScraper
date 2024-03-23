@@ -66,6 +66,18 @@ class Book(BaseModel):
         return f'{self.title}'
 
 
+class BookGenre(BaseModel):
+    book = peewee.ForeignKeyField(model=Book, verbose_name='Book')
+    genre = peewee.ForeignKeyField(model=Genre, verbose_name='Genre')
+
+    class Meta:
+        database = main.database_manager.db
+
+    def __str__(self):
+        """Override str method"""
+        return f'{self.book} : {self.genre}'
+
+
 class Keyword(BaseModel):
     keyword = peewee.CharField(max_length=255, null=False, verbose_name='Keyword')
 
