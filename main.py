@@ -19,20 +19,28 @@ if __name__ == '__main__':
     database_manager.create_tables(models=[models.Author, models.Keyword, models.SearchByKeyword, models.Book,
                                            models.Genre, models.BookGenre, models.Group])
 
-    # Inputs
-    search_title = input('Please enter a search title: ') or DEFAULT_TITLE
-    keyword, _ = models.Keyword.get_or_create(keyword=search_title)
-    search_type = input('What are you searching for?(books, groups, quotes, people or listopia) ') or DEFAULT_TAB
-    tab = search_type
-    page_count = int(input('How many pages you want to scrape data from? ') or DEFAULT_PAGE_COUNTS)
-    search_keyword_item, _ = models.SearchByKeyword.get_or_create(
-        keyword=keyword,
-        search_type=search_type,
-        search_tab=tab,
-        page_count=page_count,
-    )
-    main_scraper_handler = scraper_handler.ScraperHandler(base_url=BASE_URL, search_url=SEARCH_URL)
-    main_scraper_handler.search(keyword_search_instance=search_keyword_item)
-
-    if database_manager.db:
-        database_manager.close_connection()
+    try:
+        # Inputs
+        search_title = input('Please enter a search title: ') or DEFAULT_TITLE
+        keyword, _ = models.Keyword.get_or_create(keyword=search_title)
+        search_type = input('What are you searching for?(books, groups, quotes, people or listopia) ') or DEFAULT_TAB
+        tab = search_type
+        page_count = int(input('How many pages you want to scrape data from? ') or DEFAULT_PAGE_COUNTS)
+        search_keyword_item, _ = models.SearchByKeyword.get_or_create(
+            keyword=keyword,
+            search_type=search_type,
+            search_tab=tab,
+            page_count=page_count,
+        )
+        main_scraper_handler = scraper_handler.ScraperHandler(base_url=BASE_URL, search_url=SEARCH_URL)
+        main_scraper_handler.search(keyword_search_instance=search_keyword_item)
+    except ValueError as error:
+        print('ValueError:', error)
+    except TimeoutError as error:
+        print('TimeoutError:', error)
+    except AttributeError as error:
+        print('AttributeError:', error)
+    finally:
+        # Close database connection
+        if database_manager.db:
+            database_manager.close_connection()
